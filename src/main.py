@@ -7,6 +7,8 @@ import json
 from services.ocr import ocr_service
 from services.typewriter import typewriter_service
 
+from config import settings
+
 
 app = FastAPI()
 
@@ -33,4 +35,4 @@ async def ocr(file: UploadFile = File(...)):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host=settings.host, port=settings.port)
