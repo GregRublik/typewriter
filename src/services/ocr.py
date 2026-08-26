@@ -8,7 +8,6 @@ class OCRService:
             enable_mkldnn=False,
             use_doc_orientation_classify=False,
             use_doc_unwarping=False,
-            text_detection_model_name="PP-OCRv5_mobile_det",
         )
 
     def run(self, document_path: str) -> str:
@@ -19,7 +18,10 @@ class OCRService:
         for res in result:
             text.extend(res["rec_texts"])
 
-        return "\n".join(text)
+        res = "\n".join(text)
+        print(res)
+
+        return res
 
 
 ocr_service = OCRService()
