@@ -1,3 +1,23 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class LLMSettings(BaseSettings):
+    host: str
+
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="LLM_", extra="ignore")
+
+
+class Settings(BaseSettings):
+    host: str
+    port: int
+
+    llm: LLMSettings
+
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="APP_", extra="ignore")
+
+settings = Settings(
+    llm=LLMSettings(),
+)
+
 types = {
     "result": [
         {

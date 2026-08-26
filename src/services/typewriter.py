@@ -1,5 +1,5 @@
 import json
-from config import types
+from config import types, settings
 import requests
 
 class TypeWriterService:
@@ -23,7 +23,7 @@ class TypeWriterService:
         prompt = self.generate_prompt(text_document)
 
         response = requests.post(
-            "http://172.17.10.143:8080/completion",
+            f"http://{settings.llm.host}:{settings.llm.port}/completion",
             headers={"Content-Type": "application/json"},
             json={
                 "prompt": prompt,
