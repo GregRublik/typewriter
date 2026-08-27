@@ -15,7 +15,7 @@ class TypeWriterService:
         Документ:
         {text_document}
         Формат ответа:
-        {{"name": "название типа", "value": "значение типа", "standard": "стандарт документа", "country": "alpha-2 код страны" }}
+        {{"name": "название типа", "value": "значение типа", "standard": "EXAMPLE", "country": "alpha-2 код страны" }}
         Верни ТОЛЬКО валидный JSON без markdown и дополнительного текста.
         Ответ:
         """
