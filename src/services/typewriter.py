@@ -46,7 +46,7 @@ class TypeWriterService:
                 "messages": [
                     {"role": "user", "content": prompt}  # Промпт передается здесь
                 ],
-                "max_tokens": 50  # Аналог n_predict[reference:4]
+                # "max_tokens": 50  # Аналог n_predict[reference:4]
             }
         )
         return response.json()
