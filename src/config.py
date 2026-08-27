@@ -10,6 +10,7 @@ class LLMSettings(BaseSettings):
 class Settings(BaseSettings):
     host: str
     port: int
+    ocr_engine: str = "tesseract"  # "tesseract" (лёгкий) или "paddle" (тяжёлый, качественнее)
 
     llm: LLMSettings
 

@@ -4,10 +4,18 @@ import tempfile
 import os
 import json
 
-from services.ocr import ocr_service
 from services.typewriter import typewriter_service
 
 from config import settings
+
+if settings.ocr_engine == "paddle":
+    from services.ocr import PaddleOCRService
+
+    ocr_service = PaddleOCRService()
+else:
+    from services.ocr_tesseract import TesseractOCRService
+
+    ocr_service = TesseractOCRService()
 
 
 app = FastAPI()
