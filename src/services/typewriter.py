@@ -24,15 +24,31 @@ class TypeWriterService:
 
         prompt = self.generate_prompt(text_document)
 
+        # response = requests.post(
+        #     f"http://{settings.llm.host}:{settings.llm.port}/completion",
+        #     headers={"Content-Type": "application/json"},
+        #     json={
+        #         "prompt": prompt,
+        #         "n_predict": 50
+        #     }
+        # )
+        #
+        # return response.json()
+
         response = requests.post(
-            f"http://{settings.llm.host}:{settings.llm.port}/completion",
-            headers={"Content-Type": "application/json"},
+            'https://api.deepseek.com/chat/completions',
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {settings.llm.api_key}"
+            },
             json={
-                "prompt": prompt,
-                "n_predict": 50
+                "model": "deepseek-v4-flash",  # или "deepseek-v4-flash"[reference:3]
+                "messages": [
+                    {"role": "user", "content": prompt}  # Промпт передается здесь
+                ],
+                "max_tokens": 50  # Аналог n_predict[reference:4]
             }
         )
-
         return response.json()
 
 typewriter_service = TypeWriterService()

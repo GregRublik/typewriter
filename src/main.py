@@ -36,7 +36,9 @@ async def ocr(file: UploadFile = File(...)):
         result = typewriter_service.run(text)
 
         try:
-            res = json.loads(result["content"])
+            # res = json.loads(result["content"])
+            res = json.loads(result)
+            res = res["choices"][0]["message"]["content"]
         except Exception:
             res = result["content"]
         return res
