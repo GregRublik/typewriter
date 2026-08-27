@@ -1,5 +1,5 @@
 import json
-from config import types, settings
+from config import types, standards, settings
 import requests
 
 class TypeWriterService:
@@ -7,13 +7,15 @@ class TypeWriterService:
     @staticmethod
     def generate_prompt(text_document):
         return f"""
-        Определи тип документа.
+        Определи тип и стандарт документа а также страну стандарта.
         Возможные типы:
         {json.dumps(types, ensure_ascii=False)}
+        Возможные стандарты:
+        {json.dumps(standards, ensure_ascii=False)}
         Документ:
         {text_document}
         Формат ответа:
-        {{"name": "название типа", "value": "значение типа"}}
+        {{"name": "название типа", "value": "значение типа", "standard": "стандарт документа", "country": "alpha-2 код страны" }}
         Верни ТОЛЬКО валидный JSON без markdown и дополнительного текста.
         Ответ:
         """
