@@ -38,12 +38,16 @@ async def ocr(file: UploadFile = File(...)):
 
         try:
             res = json.loads(res["choices"][0]["message"]["content"])
+            success = True
         except Exception:
             try:
+
                 res = result["choices"][0]["message"]["content"]
+                success = False
             except Exception:
-                return result
-        return res
+                success = False
+                return {"success": success, "result": result}
+        return {"success": success, "result": res}
     finally:
         os.unlink(temp_file_path)
 
