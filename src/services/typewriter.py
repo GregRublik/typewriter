@@ -17,6 +17,7 @@ class TypeWriterService:
         Формат ответа:
         {{"name": "название типа", "value": "значение типа", "standard": "стандарт, например(EAEU)", "country": "alpha-2 код страны" }}
         Верни ТОЛЬКО валидный JSON без markdown и дополнительного текста.
+        В ответе не должно быть символов (`,\n,\)
         Ответ:
         """
 
@@ -34,21 +35,49 @@ class TypeWriterService:
         # )
         #
         # return response.json()
+        if settings.llm.use_free:
+            print("use free mode")
 
-        response = requests.post(
-            'https://api.deepseek.com/chat/completions',
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {settings.llm.api_key}"
-            },
-            json={
-                "model": "deepseek-v4-flash",  # или "deepseek-v4-flash"[reference:3]
-                "messages": [
-                    {"role": "user", "content": prompt}  # Промпт передается здесь
-                ],
-                # "max_tokens": 50  # Аналог n_predict[reference:4]
-            }
-        )
-        return response.json()
+            response = requests.post(
+                "http://localhost:20128/v1/chat/completions",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {settings.llm.api_key}",
+                },
+                json={
+                    "model": "ds-web/deepseek-v4-pro",
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": prompt,
+                        }
+                    ],
+                    "stream": False,
+                },
+            )
+
+            # response.raise_for_status()
+            print(response)
+
+            result = response.json()
+            # return response.text
+
+        else:
+            response = requests.post(
+                'https://api.deepseek.com/chat/completions',
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {settings.llm.api_key}"
+                },
+                json={
+                    "model": "deepseek-v4-flash",  # или "deepseek-v4-flash"[reference:3]
+                    "messages": [
+                        {"role": "user", "content": prompt}  # Промпт передается здесь
+                    ],
+                    # "max_tokens": 50  # Аналог n_predict[reference:4]
+                }
+            )
+            result = response.json()
+        return result
 
 typewriter_service = TypeWriterService()

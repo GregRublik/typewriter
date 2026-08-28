@@ -5,6 +5,8 @@ class LLMSettings(BaseSettings):
     port: int
     api_key: str
 
+    use_free: bool
+
     model_config = SettingsConfigDict(env_file=".env", env_prefix="LLM_", extra="ignore")
 
 
