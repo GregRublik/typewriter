@@ -45,7 +45,7 @@ class TypeWriterService:
                     "Authorization": f"Bearer {settings.llm.api_key}",
                 },
                 json={
-                    "model": "ds-web/deepseek-v4-pro",
+                    "model": "ds/deepseek-v4-flash",
                     "messages": [
                         {
                             "role": "user",
