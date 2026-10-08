@@ -1,8 +1,10 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Response
 import uvicorn
 import tempfile
 import os
 import json
+from pdf2image import convert_from_bytes
+from io import BytesIO
 
 from services.typewriter import typewriter_service
 
@@ -20,6 +22,19 @@ else:
 
 app = FastAPI()
 
+@app.post("/pdf_to_jpg")
+async def pdf_to_jpg(file: UploadFile = File(...)):
+    pdf = await file.read()
+    pages = convert_from_bytes(pdf, dpi=150)
+    if not pages:
+        return {"error": "PDF is empty"}
+    output = BytesIO()
+    pages[0].save(output, format="JPEG", quality=90)
+    return Response(
+        content=output.getvalue(),
+        media_type="image/jpeg",
+        headers={"Content-Disposition": 'inline; filename="page-1.jpg"'}
+    )
 
 @app.post("/analyse")
 async def ocr(file: UploadFile = File(...)):
