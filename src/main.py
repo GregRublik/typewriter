@@ -6,7 +6,7 @@ import json
 from pdf2image import convert_from_bytes
 from io import BytesIO
 
-from services.typewriter import typewriter_service
+from services.typewriter import typewriter_service, TypeWriterError
 
 from config import settings
 
@@ -48,7 +48,12 @@ async def ocr(file: UploadFile = File(...)):
     try:
         text = ocr_service.run(temp_file_path)
 
-        result = typewriter_service.run(text)
+        try:
+            result = typewriter_service.run(text)
+        except TypeWriterError as e:
+            # LLM недоступна даже после повторов — отдаём понятную ошибку вместо тела ответа прокси
+            return {"success": False, "error": str(e), "retry_later": True}
+
         res = result
 
         try:
