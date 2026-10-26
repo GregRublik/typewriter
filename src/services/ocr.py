@@ -1,3 +1,6 @@
+import threading
+
+
 class PaddleOCRService:
     """OCR на PaddleOCR (PP-OCRv5). Тяжёлый движок: ~3.5 ГБ пика RAM.
 
@@ -7,25 +10,29 @@ class PaddleOCRService:
 
     def __init__(self):
         self._ocr = None
+        # предиктор Paddle не потокобезопасен, а ленивая инициализация из двух
+        # потоков могла бы создать два движка по ~3.5 ГБ — сериализуем весь run()
+        self._lock = threading.Lock()
 
     def run(self, document_path: str) -> str:
-        if self._ocr is None:
-            from paddleocr import PaddleOCR
+        with self._lock:
+            if self._ocr is None:
+                from paddleocr import PaddleOCR
 
-            self._ocr = PaddleOCR(
-                lang="ru",
-                enable_mkldnn=False,
-                use_doc_orientation_classify=False,
-                use_doc_unwarping=False,
-                use_textline_orientation=False,
-                cpu_threads=2,
-            )
+                self._ocr = PaddleOCR(
+                    lang="ru",
+                    enable_mkldnn=False,
+                    use_doc_orientation_classify=False,
+                    use_doc_unwarping=False,
+                    use_textline_orientation=False,
+                    cpu_threads=2,
+                )
 
-        result = self._ocr.predict(document_path)
+            result = self._ocr.predict(document_path)
 
-        text = []
+            text = []
 
-        for res in result:
-            text.extend(res["rec_texts"])
+            for res in result:
+                text.extend(res["rec_texts"])
 
-        return "\n".join(text)
+            return "\n".join(text)

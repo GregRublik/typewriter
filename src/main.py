@@ -23,8 +23,9 @@ else:
 app = FastAPI()
 
 @app.post("/pdf_to_jpg")
-async def pdf_to_jpg(file: UploadFile = File(...)):
-    pdf = await file.read()
+def pdf_to_jpg(file: UploadFile = File(...)):
+    # обычный def — FastAPI выполнит обработчик в threadpool, convert_from_bytes не заблокирует event loop
+    pdf = file.file.read()
     pages = convert_from_bytes(pdf, dpi=150)
     if not pages:
         return {"error": "PDF is empty"}
@@ -37,11 +38,12 @@ async def pdf_to_jpg(file: UploadFile = File(...)):
     )
 
 @app.post("/analyse")
-async def ocr(file: UploadFile = File(...)):
+def ocr(file: UploadFile = File(...)):
+    # обычный def — OCR и синхронный requests в typewriter не должны останавливать event loop
     suffix = os.path.splitext(file.filename)[1]
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
-        content = await file.read()
+        content = file.file.read()
         temp_file.write(content)
         temp_file_path = temp_file.name
 
