@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Response
+from fastapi import FastAPI, UploadFile, File, Response, Query
 import uvicorn
 import tempfile
 import os
@@ -22,15 +22,29 @@ else:
 
 app = FastAPI()
 
+# 400 DPI — с запасом для чтения мелкого текста и штрихкодов/QR.
+# В PDF графика (штрихкод, текст) векторная, поэтому детализация картинки
+# целиком определяется DPI рендера: этикетка 164x113 pt на 150 DPI — это
+# всего 342x236 px, всё мелкое мыло.
+PDF_TO_IMAGE_DPI = 400
+
+
 @app.post("/pdf_to_jpg")
-def pdf_to_jpg(file: UploadFile = File(...)):
+def pdf_to_jpg(
+    file: UploadFile = File(...),
+    dpi: int = Query(PDF_TO_IMAGE_DPI, ge=72, le=1200, description="Разрешение рендера PDF"),
+):
     # обычный def — FastAPI выполнит обработчик в threadpool, convert_from_bytes не заблокирует event loop
     pdf = file.file.read()
-    pages = convert_from_bytes(pdf, dpi=150)
+    # берём только первую страницу: остальные всё равно не отдаются,
+    # а на длинных PDF рендер всех страниц зря жрёт память
+    pages = convert_from_bytes(pdf, dpi=dpi, first_page=1, last_page=1)
     if not pages:
         return {"error": "PDF is empty"}
     output = BytesIO()
-    pages[0].save(output, format="JPEG", quality=90)
+    # quality=95 без прореживания хромы: на quality=90 вокруг штрихов
+    # штрихкода/QR появляются артефакты, которые мешают сканированию
+    pages[0].save(output, format="JPEG", quality=95, subsampling=0)
     return Response(
         content=output.getvalue(),
         media_type="image/jpeg",
